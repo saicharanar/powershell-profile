@@ -1,4 +1,4 @@
-oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\jandedobbeleer.omp.json" | Invoke-Expression
+oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\di4am0nd.omp.json" | Invoke-Expression
 Import-Module z
 # Import PSReadLine Module
 Import-Module PSReadLine
@@ -92,13 +92,24 @@ function gcp { param([string]$Commit) git cherry-pick $Commit }
 
 # Additional Shell Command Functions
 function rm {
-  param (
-      [string[]]$Paths
-  )
-  foreach ($Path in $Paths) {
-      Remove-Item -Path $Path -Force
-  }
+    param (
+        [string[]]$Paths,
+        [switch]$Force,
+        [switch]$Recurse
+    )
+    foreach ($Path in $Paths) {
+        if (Test-Path $Path) {
+            try {
+                Remove-Item -Path $Path -Force:$Force.IsPresent -Recurse:$Recurse.IsPresent
+            } catch {
+                Write-Host "rm: Failed to remove ${Path}: $_" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "rm: ${Path}: No such file or directory" -ForegroundColor Red
+        }
+    }
 }
+
 
 function mkdir {
   param (
@@ -143,4 +154,9 @@ function l {
       [string]$Path = "."
   )
   ls $Path
+}
+
+function ws {
+    param ([string[]]$Args)
+    & webstorm64.exe @Args
 }
